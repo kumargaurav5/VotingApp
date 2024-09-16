@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const User = require("../models/user")
-const { jwtAuthMiddleware, generateToken } = require("../jwt")
+const { jwtAuthMiddleware, generateToken } = require("../jwt");
+const { MongooseError } = require('mongoose');
 
 router.post('/signup', async (req, res) => {
     try {
@@ -15,11 +16,14 @@ router.post('/signup', async (req, res) => {
         console.log(JSON.stringify(payload));
         const token = generateToken(payload);
         console.log("Token is : ", token)
-        res.status(200).json({ response: response, token: token })
+        return res.status(200).json({ response: response, token: token })
 
     } catch (err) {
+        if(err instanceof MongooseError){
+            return res.status(400).json({ error: "Kindly  provide all required field" })
+        }
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
+        return res.status(500).json({ error: "Internal server error" })
 
     }
 })
@@ -45,11 +49,14 @@ router.post('/login', async (req, res) => {
         console.log(JSON.stringify(payload));
         const token = generateToken(payload);
         console.log("Token is : ", token)
-        res.status(200).json({ token: token , message:" Loggged to Voting system"})
+        return res.status(200).json({ token: token , message:" Loggged to Voting system"})
 
     } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
+        if(err instanceof MongooseError){
+            return res.status(400).json({ error: "Kindly  provide all required field" })
+        }
+       return  res.status(500).json({ error: "Internal server error" })
     }
 
 })
@@ -59,11 +66,14 @@ router.get('/profile', jwtAuthMiddleware, async (req, res) => {
         const userData = req.user
         const userId = userData.id
         const user = await User.findById(userId)
-        res.status(200).json({ user })
+        return res.status(200).json({ user })
     }
     catch (err) {
+        if(err instanceof MongooseError){
+            return res.status(400).json({ error: "Kindly  provide all required field" })
+        }
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
+        return res.status(500).json({ error: "Internal server error" })
     }
 })
 
@@ -78,10 +88,13 @@ router.put('/profile/password', jwtAuthMiddleware, async (req, res) => {
         user.password = newPassword
         await user.save()
         console.log("password updated");
-        res.status(200).json({ message: "password updated " })
+        return res.status(200).json({ message: "password updated " })
     } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
+        if(err instanceof MongooseError){
+            return res.status(400).json({ error: "Kindly  provide all required field" })
+        }
+        return res.status(500).json({ error: "Internal server error" })
     }
 })
 
