@@ -7,9 +7,10 @@ require("dotenv").config();
 app.use(bodyParser.json())
 
 const userroutes = require("./routes/UserRoutes")
+const candidateroutes = require("./routes/CandidateRoutes")
 
 app.use('/user' , userroutes)
-
+app.use('/candidate' , candidateroutes)
 
 app.get("/",(req,res)=>{
     res.send("This is Voting Machine website ")
