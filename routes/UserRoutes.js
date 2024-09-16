@@ -20,7 +20,8 @@ router.post('/signup', async (req, res) => {
 
     } catch (err) {
         if(err instanceof MongooseError){
-            return res.status(400).json({ error: "Kindly  provide all required field" })
+            console.log(err)
+            return res.status(400).json({ error: "Kindly  provide all required field . " })
         }
         console.log(err);
         return res.status(500).json({ error: "Internal server error" })
